@@ -10,12 +10,16 @@ class TasksProvider with ChangeNotifier {
 
   Future<void> fetchTasks() async {
     _tasks = await _taskService.fetchTasks();
-    print("Tasks fetched: ${_tasks.length}");
     notifyListeners();
   }
 
   void addTask(Task task) {
     _taskService.createTask(task);
+    notifyListeners();
+  }
+
+  void updateTask(Task task) {
+    _taskService.updateTask(task);
     notifyListeners();
   }
 

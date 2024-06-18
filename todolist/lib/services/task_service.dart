@@ -16,12 +16,12 @@ class TaskService {
       var faker = Faker();
       for (int i = 0; i < 100; i++) {
         _tasks.add(Task(
+          id: faker.guid.guid(),
           userId: faker.guid.guid(),
           content: faker.lorem.sentence(),
           completed: faker.randomGenerator.boolean(),
         ));
       }
-      print("Initial tasks created: ${_tasks.length}");
     }
     await Future.delayed(Duration(seconds: 2));
     return _tasks;
@@ -29,6 +29,12 @@ class TaskService {
 
   void createTask(Task task) {
     _tasks.add(task);
-    print("Task created: ${task.content} - Total tasks: ${_tasks.length}");
+  }
+
+  void updateTask(Task task) {
+    int index = _tasks.indexWhere((t) => t.id == task.id);
+    if (index != -1) {
+      _tasks[index] = task;
+    }
   }
 }

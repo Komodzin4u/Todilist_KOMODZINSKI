@@ -39,13 +39,20 @@ class _TasksMasterState extends State<TasksMaster> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final bool taskCreated = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => TaskForm()),
+          Task? newTask = await showDialog<Task>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Add New Task'),
+                content: TaskForm(
+                  formMode: FormMode.Add,
+                ),
+              );
+            },
           );
-          if (taskCreated != null && taskCreated) {
-            await Provider.of<TasksProvider>(context, listen: false)
-                .fetchTasks();
+
+          if (newTask != null) {
+            Provider.of<TasksProvider>(context, listen: false).addTask(newTask);
           }
         },
         child: Icon(Icons.add),

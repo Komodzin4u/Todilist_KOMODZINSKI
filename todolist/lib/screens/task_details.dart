@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/task.dart';
+import '../providers/tasks_provider.dart';
+import 'task_form.dart';
 
 class TaskDetails extends StatelessWidget {
   final Task task;
@@ -14,15 +17,33 @@ class TaskDetails extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Content: ${task.content}'),
-            SizedBox(height: 8),
-            Text('Completed: ${task.completed ? "Yes" : "No"}'),
-            // Add more fields as needed
-          ],
+        child: TaskForm(
+          formMode: FormMode.Edit,
+          task: task,
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          Task? updatedTask = await showDialog<Task>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Edit Task'),
+                content: TaskForm(
+                  formMode: FormMode.Edit,
+                  task: task,
+                ),
+              );
+            },
+          );
+
+          if (updatedTask != null) {
+            Provider.of<TasksProvider>(context, listen: false)
+                .updateTask(updatedTask);
+            Navigator.pop(context); // Retourner à la liste des tâches
+          }
+        },
+        child: Icon(Icons.save),
       ),
     );
   }
