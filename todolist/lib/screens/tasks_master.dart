@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../services/task_service.dart';
+import 'package:provider/provider.dart';
+import '../providers/tasks_provider.dart';
 import '../models/task.dart';
 import '../widgets/task_preview.dart';
 import 'task_form.dart';
@@ -10,19 +11,10 @@ class TasksMaster extends StatefulWidget {
 }
 
 class _TasksMasterState extends State<TasksMaster> {
-  late Future<List<Task>> _tasksFuture;
-  final TaskService _taskService = TaskService();
-
   @override
   void initState() {
     super.initState();
-    _tasksFuture = _taskService.fetchTasks();
-  }
-
-  void _refreshTasks() {
-    setState(() {
-      _tasksFuture = _taskService.fetchTasks();
-    });
+    Provider.of<TasksProvider>(context, listen: false).fetchTasks();
   }
 
   @override
@@ -31,20 +23,15 @@ class _TasksMasterState extends State<TasksMaster> {
       appBar: AppBar(
         title: Text('Todo List'),
       ),
-      body: FutureBuilder<List<Task>>(
-        future: _tasksFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+      body: Consumer<TasksProvider>(
+        builder: (context, tasksProvider, child) {
+          if (tasksProvider.tasks.isEmpty) {
             return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No tasks available'));
           } else {
             return ListView.builder(
-              itemCount: snapshot.data!.length,
+              itemCount: tasksProvider.tasks.length,
               itemBuilder: (context, index) {
-                return TaskPreview(task: snapshot.data![index]);
+                return TaskPreview(task: tasksProvider.tasks[index]);
               },
             );
           }
@@ -57,7 +44,8 @@ class _TasksMasterState extends State<TasksMaster> {
             MaterialPageRoute(builder: (context) => TaskForm()),
           );
           if (taskCreated != null && taskCreated) {
-            _refreshTasks();
+            await Provider.of<TasksProvider>(context, listen: false)
+                .fetchTasks();
           }
         },
         child: Icon(Icons.add),

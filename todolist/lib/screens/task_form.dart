@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/task.dart';
-import '../services/task_service.dart';
+import '../providers/tasks_provider.dart';
 
 class TaskForm extends StatefulWidget {
   @override
@@ -57,15 +58,17 @@ class _TaskFormState extends State<TaskForm> {
                       content: _content,
                       completed: _completed,
                     );
-                    TaskService().createTask(newTask);
+                    print("Submitting new task: ${newTask.content}");
+                    Provider.of<TasksProvider>(context, listen: false)
+                        .addTask(newTask);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Tâche crée')),
+                      SnackBar(content: Text('Task Created')),
                     );
                     Navigator.pop(context,
                         true); // Retourner true pour indiquer que la tâche a été créée
                   }
                 },
-                child: Text('Valider'),
+                child: Text('Submit'),
               ),
             ],
           ),

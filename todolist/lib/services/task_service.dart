@@ -12,8 +12,8 @@ class TaskService {
   final List<Task> _tasks = [];
 
   Future<List<Task>> fetchTasks() async {
-    var faker = Faker();
     if (_tasks.isEmpty) {
+      var faker = Faker();
       for (int i = 0; i < 100; i++) {
         _tasks.add(Task(
           userId: faker.guid.guid(),
@@ -21,13 +21,14 @@ class TaskService {
           completed: faker.randomGenerator.boolean(),
         ));
       }
+      print("Initial tasks created: ${_tasks.length}");
     }
-
     await Future.delayed(Duration(seconds: 2));
     return _tasks;
   }
 
   void createTask(Task task) {
     _tasks.add(task);
+    print("Task created: ${task.content} - Total tasks: ${_tasks.length}");
   }
 }
