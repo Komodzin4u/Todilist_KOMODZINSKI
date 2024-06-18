@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:todolist/services/task_service.dart';
+import 'package:todolist/models/task.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  var taskService = TaskService();
+  var tasks = await taskService.fetchTasks();
+  for (var task in tasks) {
+    print(task);
+  }
   runApp(TodoListApp());
 }
 
@@ -14,7 +22,7 @@ class TodoListApp extends StatelessWidget {
           title: Text('Todo List'),
         ),
         body: Center(
-          child: Text('Bienvenue sur mon app Todo List!'),
+          child: Text('Bienvenue sur TodoList!'),
         ),
       ),
     );
