@@ -90,13 +90,13 @@ class _TaskFormState extends State<TaskForm> {
                         .notifyListeners();
                   }
                 },
-                child: Text(
-                    widget.formMode == FormMode.Add ? 'Add Task' : 'Edit Task'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).primaryColor,
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 ),
+                child: Text(
+                    widget.formMode == FormMode.Add ? 'Add Task' : 'Edit Task'),
               ),
             ],
           ),
