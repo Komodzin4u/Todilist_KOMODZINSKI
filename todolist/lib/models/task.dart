@@ -15,6 +15,25 @@ class Task {
     this.completed = false,
   }) : id = id ?? const Uuid().v4();
 
+  factory Task.fromJson(Map<String, dynamic> json) {
+    return Task(
+      id: json['id'],
+      name: json['name'],
+      priority: Priority.values
+          .firstWhere((e) => e.toString() == 'Priority.${json['priority']}'),
+      completed: json['completed'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'priority': priority.toString().split('.').last,
+      'completed': completed,
+    };
+  }
+
   void completeTask() {
     completed = true;
   }

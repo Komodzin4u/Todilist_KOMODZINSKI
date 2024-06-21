@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:todolist/services/task_service.dart';
-import 'package:todolist/models/task.dart';
+import '../services/task_service.dart';
+import '../models/task.dart';
 
 class TasksProvider extends ChangeNotifier {
   final TaskService _taskService = TaskService();
@@ -28,7 +28,7 @@ class TasksProvider extends ChangeNotifier {
   }
 
   Future<void> createNewTask(Task newTask) async {
-    _taskService.createNewTask(newTask);
+    await _taskService.createNewTask(newTask);
     refreshTasks();
   }
 
@@ -36,12 +36,14 @@ class TasksProvider extends ChangeNotifier {
     return _tasksMap[id];
   }
 
-  void updateTask(Task updatedTask) {
+  Future<void> updateTask(Task updatedTask) async {
+    await _taskService.updateTask(updatedTask);
     _tasksMap[updatedTask.id] = updatedTask;
     notifyListeners();
   }
 
-  void deleteTask(String id) {
+  Future<void> deleteTask(String id) async {
+    await _taskService.deleteTask(id);
     _tasksMap.remove(id);
     notifyListeners();
   }

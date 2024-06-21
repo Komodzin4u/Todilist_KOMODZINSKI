@@ -1,36 +1,35 @@
-import 'dart:math';
-import 'package:faker/faker.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/task.dart';
 
 class TaskService {
-  List<Task> tasks = [];
+  final Dio _dio = Dio(BaseOptions(
+    baseUrl: dotenv.env['SUPABASE_URL']!,
+    headers: {
+      'apikey': dotenv.env['API_KEY']!,
+      'Authorization': 'Bearer ${dotenv.env['SUPABASE_ANON_KEY']!}',
+    },
+  ));
 
   Future<List<Task>> fetchTasks() async {
-    if (tasks.isEmpty) {
-      var faker = Faker();
-      var random = Random();
-
-      tasks = List.generate(10, (index) {
-        return Task(
-          name: faker.lorem.sentence(),
-          priority: Priority.values[random.nextInt(Priority.values.length)],
-          completed: random.nextBool(),
-        );
-      });
-      return tasks;
+    final response = await _dio.get('/rest/v1/tasks');
+    if (response.statusCode == 200) {
+      final List<dynamic> data = response.data;
+      return data.map((json) => Task.fromJson(json)).toList();
     } else {
-      return tasks;
+      throw Exception('Failed to load tasks');
     }
   }
 
-  void createNewTask(Task task) {
-    tasks.add(task);
+  Future<void> createNewTask(Task task) async {
+    await _dio.post('/rest/v1/tasks', data: task.toJson());
   }
 
-  void updateTask(Task updatedTask) {
-    int index = tasks.indexWhere((t) => t.id == updatedTask.id);
-    if (index != -1) {
-      tasks[index] = updatedTask;
-    }
+  Future<void> updateTask(Task task) async {
+    await _dio.put('/rest/v1/tasks/${task.id}', data: task.toJson());
+  }
+
+  Future<void> deleteTask(String id) async {
+    await _dio.delete('/rest/v1/tasks/$id');
   }
 }
