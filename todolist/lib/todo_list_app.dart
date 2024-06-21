@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:todolist/models/user.dart';
 import 'providers/tasks_provider.dart';
 import 'providers/user_provider.dart';
 import 'services/auth_service.dart';
 import 'screens/signin.dart';
 import 'screens/tasks_master.dart';
 import 'screens/task_form.dart';
+import 'models/user.dart';
 
 class TodoListApp extends StatelessWidget {
   @override
@@ -40,11 +40,9 @@ class TodoListApp extends StatelessWidget {
                   } else if (snapshot.hasError) {
                     return Center(child: Text('Error: ${snapshot.error}'));
                   } else if (snapshot.hasData && snapshot.data != null) {
-                    WidgetsBinding.instance?.addPostFrameCallback((_) {
-                      final user = User.fromJson(snapshot.data!);
-                      Provider.of<UserProvider>(context, listen: false)
-                          .setUser(user);
-                    });
+                    final user = User.fromJson(snapshot.data!);
+                    Provider.of<UserProvider>(context, listen: false)
+                        .setUser(user);
                     return TasksMaster();
                   } else {
                     return SignIn();

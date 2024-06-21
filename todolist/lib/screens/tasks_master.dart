@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/tasks_provider.dart';
+import '../providers/user_provider.dart';
 import '../widgets/task_preview.dart';
 
 class TasksMaster extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final tasksProvider = Provider.of<TasksProvider>(context, listen: false);
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+    if (userProvider.user != null) {
+      tasksProvider.fetchTasks();
+    }
+
     return Scaffold(
       appBar: AppBar(title: Text('Tasks')),
       body: Consumer<TasksProvider>(

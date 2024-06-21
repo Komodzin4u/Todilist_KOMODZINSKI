@@ -12,8 +12,10 @@ class TaskService {
   Future<List<Task>> fetchTasks() async {
     try {
       String? token = await authService.getAccessToken();
+      String? userId = (await authService.getUserData())?['id'];
       final response = await _dio.get(
         '$_baseUrl/rest/v1/tasks',
+        queryParameters: {'user_id': 'eq.$userId'}, // Assurer le bon filtrage
         options: Options(headers: {
           'apikey': _apiKey,
           'Authorization': 'Bearer $token',
@@ -33,9 +35,12 @@ class TaskService {
   Future<void> createNewTask(Task task) async {
     try {
       String? token = await authService.getAccessToken();
+      String? userId = (await authService.getUserData())?['id'];
+      final taskData = task.toJson();
+      taskData['user_id'] = userId;
       await _dio.post(
         '$_baseUrl/rest/v1/tasks',
-        data: task.toJson(),
+        data: taskData,
         options: Options(headers: {
           'apikey': _apiKey,
           'Authorization': 'Bearer $token',

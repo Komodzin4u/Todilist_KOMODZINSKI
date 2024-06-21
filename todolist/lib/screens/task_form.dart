@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/task.dart';
 import '../providers/tasks_provider.dart';
+import '../services/auth_service.dart';
 import 'package:uuid/uuid.dart';
 
 class TaskForm extends StatefulWidget {
@@ -31,13 +32,16 @@ class _TaskFormState extends State<TaskForm> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       var uuid = Uuid();
+      final userId = (await AuthService().getUserData())?['id'];
       Task newTask = widget.task != null
-          ? widget.task!.copyWith(name: _name, priority: _priority)
+          ? widget.task!
+              .copyWith(name: _name, priority: _priority, userId: userId)
           : Task(
               id: uuid.v4(),
               name: _name,
               completed: false,
-              priority: _priority);
+              priority: _priority,
+              userId: userId);
       if (widget.task != null) {
         await Provider.of<TasksProvider>(context, listen: false)
             .updateTask(newTask);
