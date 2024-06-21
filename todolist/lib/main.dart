@@ -14,6 +14,21 @@ class TodoListApp extends StatelessWidget {
       create: (context) => TasksProvider(),
       child: MaterialApp(
         title: 'Todo List',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          colorScheme: ColorScheme.light(
+            primary: Colors.blue,
+            secondary: Colors.blueAccent,
+          ),
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        darkTheme: ThemeData.dark().copyWith(
+          colorScheme: ColorScheme.dark(
+            primary: Colors.blue,
+            secondary: Colors.blueAccent,
+          ),
+          buttonTheme: ButtonThemeData(buttonColor: Colors.blue),
+        ),
         home: TasksMaster(),
       ),
     );

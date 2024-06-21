@@ -23,11 +23,16 @@ class TasksMaster extends StatelessWidget {
                 return Center(child: Text('Error loading tasks'));
               } else {
                 final tasks = snapshot.data as List<Task>;
-                return ListView.builder(
+                if (tasks.isEmpty) {
+                  return Center(
+                      child: Text('No tasks available, add a new task!'));
+                }
+                return ListView.separated(
                   itemCount: tasks.length,
                   itemBuilder: (context, index) {
                     return TaskPreview(task: tasks[index]);
                   },
+                  separatorBuilder: (context, index) => Divider(),
                 );
               }
             },
@@ -46,6 +51,7 @@ class TasksMaster extends StatelessWidget {
           );
         },
         child: Icon(Icons.add),
+        backgroundColor: Theme.of(context).primaryColor,
       ),
     );
   }
