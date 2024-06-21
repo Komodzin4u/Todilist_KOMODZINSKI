@@ -2,22 +2,22 @@ enum Priority { low, normal, high }
 
 class Task {
   final String id;
-  final String content;
+  final String name;
   final bool completed;
   final Priority priority;
 
   Task({
     required this.id,
-    required this.content,
+    required this.name,
     this.completed = false,
     this.priority = Priority.normal,
   });
 
   Task copyWith(
-      {String? id, String? content, bool? completed, Priority? priority}) {
+      {String? id, String? name, bool? completed, Priority? priority}) {
     return Task(
       id: id ?? this.id,
-      content: content ?? this.content,
+      name: name ?? this.name,
       completed: completed ?? this.completed,
       priority: priority ?? this.priority,
     );
@@ -26,7 +26,7 @@ class Task {
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
       id: json['id'],
-      content: json['content'],
+      name: json['name'],
       completed: json['completed'],
       priority: Priority.values[json['priority']],
     );
@@ -35,7 +35,7 @@ class Task {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'content': content,
+      'name': name,
       'completed': completed,
       'priority': priority.index,
     };

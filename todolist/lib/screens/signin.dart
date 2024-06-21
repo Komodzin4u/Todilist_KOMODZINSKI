@@ -26,7 +26,7 @@ class _SignInState extends State<SignIn> {
             .setUser(User.fromJson(userData));
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => TaskMaster()),
+          MaterialPageRoute(builder: (context) => TasksMaster()),
         );
       }
     } else {
@@ -43,11 +43,18 @@ class _SignInState extends State<SignIn> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Text(
+              'Bon Retour!',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 20),
             TextField(
               controller: _emailController,
               decoration: InputDecoration(labelText: 'Email'),
             ),
+            SizedBox(height: 10),
             TextField(
               controller: _passwordController,
               decoration: InputDecoration(labelText: 'Password'),

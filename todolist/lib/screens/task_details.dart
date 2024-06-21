@@ -20,7 +20,7 @@ class TaskDetails extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Content: ${_task.content}'),
+            Text('Name: ${_task.name}'),
             Text('Completed: ${_task.completed ? 'Yes' : 'No'}'),
             ElevatedButton(
               onPressed: () {
@@ -31,9 +31,7 @@ class TaskDetails extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () async {
-                _task = _task.copyWith(
-                    completed: !_task
-                        .completed); // Utilisation de copyWith pour modifier l'état
+                _task = _task.copyWith(completed: !_task.completed);
                 await tasksProvider.updateTask(_task);
                 try {
                   var updated = tasksProvider.getTaskById(_task.id);

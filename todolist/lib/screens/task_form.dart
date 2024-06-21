@@ -2,28 +2,49 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/task.dart';
 import '../providers/tasks_provider.dart';
-import 'package:uuid/uuid.dart'; // Assurez-vous d'importer uuid
+import 'package:uuid/uuid.dart';
 
 class TaskForm extends StatefulWidget {
+  final Task? task;
+
+  TaskForm({this.task});
+
   @override
   _TaskFormState createState() => _TaskFormState();
 }
 
 class _TaskFormState extends State<TaskForm> {
   final _formKey = GlobalKey<FormState>();
-  String _content = '';
+  String _name = '';
   Priority _priority = Priority.normal;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.task != null) {
+      _name = widget.task!.name;
+      _priority = widget.task!.priority;
+    }
+  }
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      var uuid = Uuid(); // Générer un identifiant unique
-      Task newTask = Task(
-          id: uuid.v4(),
-          content: _content,
-          completed: false,
-          priority: _priority);
-      await Provider.of<TasksProvider>(context, listen: false).addTask(newTask);
+      var uuid = Uuid();
+      Task newTask = widget.task != null
+          ? widget.task!.copyWith(name: _name, priority: _priority)
+          : Task(
+              id: uuid.v4(),
+              name: _name,
+              completed: false,
+              priority: _priority);
+      if (widget.task != null) {
+        await Provider.of<TasksProvider>(context, listen: false)
+            .updateTask(newTask);
+      } else {
+        await Provider.of<TasksProvider>(context, listen: false)
+            .addTask(newTask);
+      }
       Navigator.pop(context);
     }
   }
@@ -31,7 +52,8 @@ class _TaskFormState extends State<TaskForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('New Task')),
+      appBar:
+          AppBar(title: Text(widget.task != null ? 'Edit Task' : 'New Task')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -39,17 +61,19 @@ class _TaskFormState extends State<TaskForm> {
           child: Column(
             children: [
               TextFormField(
-                decoration: InputDecoration(labelText: 'Content'),
+                initialValue: _name,
+                decoration: InputDecoration(labelText: 'Name'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter some content';
+                    return 'Please enter some name';
                   }
                   return null;
                 },
                 onSaved: (value) {
-                  _content = value!;
+                  _name = value!;
                 },
               ),
+              SizedBox(height: 10),
               DropdownButtonFormField<Priority>(
                 value: _priority,
                 decoration: InputDecoration(labelText: 'Priority'),

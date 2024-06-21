@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/task.dart';
+import 'package:todolist/models/task.dart';
 import '../providers/tasks_provider.dart';
 import '../widgets/task_preview.dart';
 
-class TaskMaster extends StatelessWidget {
+class TasksMaster extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
