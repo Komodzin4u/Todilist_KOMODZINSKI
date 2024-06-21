@@ -5,11 +5,16 @@ import '../services/task_service.dart';
 class TasksProvider with ChangeNotifier {
   List<Task> _tasks = [];
   final TaskService _taskService = TaskService();
+  bool _isLoading = false;
 
   List<Task> get tasks => _tasks;
+  bool get isLoading => _isLoading;
 
   Future<void> fetchTasks() async {
+    _isLoading = true;
+    notifyListeners();
     _tasks = await _taskService.fetchTasks();
+    _isLoading = false;
     notifyListeners();
   }
 

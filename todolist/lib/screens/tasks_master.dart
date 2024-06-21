@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:todolist/models/task.dart';
 import '../providers/tasks_provider.dart';
 import '../widgets/task_preview.dart';
 
@@ -11,24 +10,16 @@ class TasksMaster extends StatelessWidget {
       appBar: AppBar(title: Text('Tasks')),
       body: Consumer<TasksProvider>(
         builder: (context, tasksProvider, child) {
-          return FutureBuilder(
-            future: tasksProvider.tasksFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              } else if (snapshot.hasData) {
-                List<Task> tasks = snapshot.data as List<Task>;
-                return ListView.builder(
-                  itemCount: tasks.length,
-                  itemBuilder: (context, index) {
-                    return TaskPreview(task: tasks[index]);
-                  },
-                );
-              } else {
-                return Center(child: Text('No tasks found'));
-              }
+          if (tasksProvider.isLoading) {
+            return Center(child: CircularProgressIndicator());
+          }
+          if (tasksProvider.tasks.isEmpty) {
+            return Center(child: Text('No tasks found'));
+          }
+          return ListView.builder(
+            itemCount: tasksProvider.tasks.length,
+            itemBuilder: (context, index) {
+              return TaskPreview(task: tasksProvider.tasks[index]);
             },
           );
         },
