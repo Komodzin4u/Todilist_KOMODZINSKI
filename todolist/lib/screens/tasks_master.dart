@@ -25,16 +25,12 @@ class _TasksMasterState extends State<TasksMaster> {
       ),
       body: Consumer<TasksProvider>(
         builder: (context, tasksProvider, child) {
-          if (tasksProvider.tasks.isEmpty) {
-            return Center(child: CircularProgressIndicator());
-          } else {
-            return ListView.builder(
-              itemCount: tasksProvider.tasks.length,
-              itemBuilder: (context, index) {
-                return TaskPreview(task: tasksProvider.tasks[index]);
-              },
-            );
-          }
+          return ListView.builder(
+            itemCount: tasksProvider.tasks.length,
+            itemBuilder: (context, index) {
+              return TaskPreview(task: tasksProvider.tasks[index]);
+            },
+          );
         },
       ),
       floatingActionButton: FloatingActionButton(

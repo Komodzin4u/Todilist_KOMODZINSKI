@@ -66,13 +66,13 @@ class _TaskFormState extends State<TaskForm> {
                 _formKey.currentState!.save();
                 Task task = Task(
                   id: widget.task?.id ?? uuid.v4(),
-                  userId: widget.task?.userId ??
-                      'test_user', // Remplacez par une valeur appropriée
+                  userId: widget.task?.userId ?? 'test_user',
                   content: _content,
                   completed: _completed,
                 );
-                Navigator.pop(
-                    context, task); // Retourner la tâche créée ou modifiée
+                print(
+                    "Task saved: ${task.id}, ${task.content}, ${task.completed}");
+                Navigator.pop(context, task);
               }
             },
             child: Text(

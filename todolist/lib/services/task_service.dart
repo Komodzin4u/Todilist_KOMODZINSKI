@@ -14,7 +14,7 @@ class TaskService {
   Future<List<Task>> fetchTasks() async {
     if (_tasks.isEmpty) {
       var faker = Faker();
-      for (int i = 0; i < 100; i++) {
+      for (int i = 0; i < 10; i++) {
         _tasks.add(Task(
           id: faker.guid.guid(),
           userId: faker.guid.guid(),

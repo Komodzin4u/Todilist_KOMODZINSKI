@@ -38,6 +38,8 @@ class TaskDetails extends StatelessWidget {
           );
 
           if (updatedTask != null) {
+            print(
+                "Updated Task received: ${updatedTask.id}, ${updatedTask.content}, ${updatedTask.completed}");
             Provider.of<TasksProvider>(context, listen: false)
                 .updateTask(updatedTask);
             Navigator.pop(context); // Retourner à la liste des tâches
