@@ -1,48 +1,48 @@
 import 'package:flutter/material.dart';
-import '../models/task.dart';
-import '../services/task_service.dart';
+import 'package:todolist/services/task_service.dart';
+import 'package:todolist/models/task.dart';
 
-class TasksProvider with ChangeNotifier {
-  List<Task> _tasks = [];
+class TasksProvider extends ChangeNotifier {
   final TaskService _taskService = TaskService();
+  late Future<List<Task>> _tasksFuture;
+  final Map<String, Task> _tasksMap = {};
 
-  List<Task> get tasks => _tasks;
-
-  Future<void> fetchTasks() async {
-    _tasks = await _taskService.fetchTasks();
-    notifyListeners();
+  TasksProvider() {
+    _tasksFuture = _fetchAndCacheTasks();
   }
 
-  void addTask(Task task) {
-    _taskService.createTask(task);
-    _tasks.add(task);
-    print("Task added: ${task.id}, ${task.content}, ${task.completed}");
-    notifyListeners();
-  }
+  Future<List<Task>> get tasksFuture => _tasksFuture;
 
-  void updateTask(Task task) {
-    int index = _tasks.indexWhere((t) => t.id == task.id);
-    if (index != -1) {
-      _tasks[index] = task;
-      _taskService.updateTask(task);
-      print(
-          "Task updated in provider: ${task.id}, ${task.content}, ${task.completed}");
-      notifyListeners();
-    } else {
-      print("Task not found: ${task.id}");
+  Future<List<Task>> _fetchAndCacheTasks() async {
+    List<Task> tasks = await _taskService.fetchTasks();
+    _tasksMap.clear();
+    for (var task in tasks) {
+      _tasksMap[task.id] = task;
     }
+    return tasks;
+  }
+
+  void refreshTasks() {
+    _tasksFuture = _fetchAndCacheTasks();
+    notifyListeners();
+  }
+
+  Future<void> createNewTask(Task newTask) async {
+    _taskService.createNewTask(newTask);
+    refreshTasks();
   }
 
   Task? getTaskById(String id) {
-    try {
-      return _tasks.firstWhere((task) => task.id == id);
-    } catch (e) {
-      return null;
-    }
+    return _tasksMap[id];
   }
 
-  void removeTask(String id) {
-    _tasks.removeWhere((task) => task.id == id);
+  void updateTask(Task updatedTask) {
+    _tasksMap[updatedTask.id] = updatedTask;
+    notifyListeners();
+  }
+
+  void deleteTask(String id) {
+    _tasksMap.remove(id);
     notifyListeners();
   }
 }

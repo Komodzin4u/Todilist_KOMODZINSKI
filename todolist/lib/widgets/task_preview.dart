@@ -10,7 +10,7 @@ class TaskPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(task.content),
+      title: Text(task.name),
       tileColor: task.completed ? Colors.green[100] : Colors.red[100],
       trailing: Icon(task.completed ? Icons.check : Icons.error),
       onTap: () {

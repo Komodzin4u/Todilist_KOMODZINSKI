@@ -1,40 +1,36 @@
-import 'dart:async';
+import 'dart:math';
 import 'package:faker/faker.dart';
 import '../models/task.dart';
 
 class TaskService {
-  static final TaskService _singleton = TaskService._internal();
-  factory TaskService() {
-    return _singleton;
-  }
-  TaskService._internal();
-
-  final List<Task> _tasks = [];
+  List<Task> tasks = [];
 
   Future<List<Task>> fetchTasks() async {
-    if (_tasks.isEmpty) {
+    if (tasks.isEmpty) {
       var faker = Faker();
-      for (int i = 0; i < 10; i++) {
-        _tasks.add(Task(
-          id: faker.guid.guid(),
-          userId: faker.guid.guid(),
-          content: faker.lorem.sentence(),
-          completed: faker.randomGenerator.boolean(),
-        ));
-      }
+      var random = Random();
+
+      tasks = List.generate(10, (index) {
+        return Task(
+          name: faker.lorem.sentence(),
+          priority: Priority.values[random.nextInt(Priority.values.length)],
+          completed: random.nextBool(),
+        );
+      });
+      return tasks;
+    } else {
+      return tasks;
     }
-    await Future.delayed(Duration(seconds: 2));
-    return _tasks;
   }
 
-  void createTask(Task task) {
-    _tasks.add(task);
+  void createNewTask(Task task) {
+    tasks.add(task);
   }
 
-  void updateTask(Task task) {
-    int index = _tasks.indexWhere((t) => t.id == task.id);
+  void updateTask(Task updatedTask) {
+    int index = tasks.indexWhere((t) => t.id == updatedTask.id);
     if (index != -1) {
-      _tasks[index] = task;
+      tasks[index] = updatedTask;
     }
   }
 }

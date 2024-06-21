@@ -1,18 +1,10 @@
 class Tag {
-  final int id;
-  final String value;
-  final String userId;
-  final List<String> tasks;
+  final String name;
 
-  Tag({
-    required this.id,
-    required this.value,
-    required this.userId,
-    this.tasks = const [],
-  });
+  Tag({required this.name});
 
   @override
   String toString() {
-    return 'Tag(id: $id, value: $value, userId: $userId)';
+    return 'Tag{name: $name}';
   }
 }
