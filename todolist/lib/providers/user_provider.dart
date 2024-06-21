@@ -1,26 +1,18 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
+import '../models/user.dart';
 
-class UserProvider extends ChangeNotifier {
-  final AuthService _authService = AuthService();
-  bool _isAuthenticated = false;
+class UserProvider with ChangeNotifier {
+  User? _user;
 
-  bool get isAuthenticated => _isAuthenticated;
+  User? get user => _user;
 
-  Future<void> signIn(String email, String password) async {
-    try {
-      await _authService.signIn(email, password);
-      _isAuthenticated = _authService.accessToken != null;
-      notifyListeners();
-    } catch (e) {
-      print('Sign in failed: $e');
-      throw Exception('Sign in failed');
-    }
+  void setUser(User user) {
+    _user = user;
+    notifyListeners();
   }
 
-  Future<void> signOut() async {
-    await _authService.signOut();
-    _isAuthenticated = false;
+  void clearUser() {
+    _user = null;
     notifyListeners();
   }
 }

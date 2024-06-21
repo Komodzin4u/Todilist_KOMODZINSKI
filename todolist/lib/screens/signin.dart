@@ -1,30 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../services/auth_service.dart';
 import '../providers/user_provider.dart';
+import 'tasks_master.dart';
+import '../models/user.dart';
 
 class SignIn extends StatefulWidget {
-  const SignIn({Key? key}) : super(key: key);
-
   @override
   _SignInState createState() => _SignInState();
 }
 
 class _SignInState extends State<SignIn> {
-  final _formKey = GlobalKey<FormState>();
-  String _email = '';
-  String _password = '';
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
-  void _signIn() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      try {
-        await Provider.of<UserProvider>(context, listen: false)
-            .signIn(_email, _password);
-        Navigator.pushReplacementNamed(context, '/tasks');
-      } catch (e) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Sign in failed')));
+  Future<void> _signIn() async {
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    bool success = await AuthService().signIn(email, password);
+    if (success) {
+      var userData = await AuthService().getUserData();
+      if (userData != null) {
+        Provider.of<UserProvider>(context, listen: false)
+            .setUser(User.fromJson(userData));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => TaskMaster()),
+        );
       }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to sign in')),
+      );
     }
   }
 
@@ -34,30 +42,23 @@ class _SignInState extends State<SignIn> {
       appBar: AppBar(title: Text('Sign In')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: <Widget>[
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Email'),
-                validator: (value) =>
-                    value!.isEmpty ? 'Please enter your email' : null,
-                onSaved: (value) => _email = value!,
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Password'),
-                obscureText: true,
-                validator: (value) =>
-                    value!.isEmpty ? 'Please enter your password' : null,
-                onSaved: (value) => _password = value!,
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _signIn,
-                child: Text('Sign In'),
-              ),
-            ],
-          ),
+        child: Column(
+          children: [
+            TextField(
+              controller: _emailController,
+              decoration: InputDecoration(labelText: 'Email'),
+            ),
+            TextField(
+              controller: _passwordController,
+              decoration: InputDecoration(labelText: 'Password'),
+              obscureText: true,
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _signIn,
+              child: Text('Sign In'),
+            ),
+          ],
         ),
       ),
     );

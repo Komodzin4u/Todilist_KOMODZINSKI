@@ -2,56 +2,47 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/task.dart';
 import '../providers/tasks_provider.dart';
-
-enum FormMode { Add, Edit }
+import 'package:uuid/uuid.dart'; // Assurez-vous d'importer uuid
 
 class TaskForm extends StatefulWidget {
-  final FormMode formMode;
-  final Task? task;
-
-  const TaskForm({Key? key, required this.formMode, this.task})
-      : super(key: key);
-
   @override
   _TaskFormState createState() => _TaskFormState();
 }
 
 class _TaskFormState extends State<TaskForm> {
   final _formKey = GlobalKey<FormState>();
-  late String _content;
-  late bool _completed;
+  String _content = '';
+  Priority _priority = Priority.normal;
 
-  @override
-  void initState() {
-    super.initState();
-    if (widget.formMode == FormMode.Edit && widget.task != null) {
-      _content = widget.task!.name;
-      _completed = widget.task!.completed;
-    } else {
-      _content = '';
-      _completed = false;
+  void _submitForm() async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      var uuid = Uuid(); // Générer un identifiant unique
+      Task newTask = Task(
+          id: uuid.v4(),
+          content: _content,
+          completed: false,
+          priority: _priority);
+      await Provider.of<TasksProvider>(context, listen: false).addTask(newTask);
+      Navigator.pop(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
+    return Scaffold(
+      appBar: AppBar(title: Text('New Task')),
+      body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
-            children: <Widget>[
+            children: [
               TextFormField(
-                initialValue: _content,
-                decoration: InputDecoration(
-                  labelText: 'Content',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.task),
-                ),
+                decoration: InputDecoration(labelText: 'Content'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter some text';
+                    return 'Please enter some content';
                   }
                   return null;
                 },
@@ -59,42 +50,25 @@ class _TaskFormState extends State<TaskForm> {
                   _content = value!;
                 },
               ),
-              SizedBox(height: 16),
-              if (widget.formMode == FormMode.Edit)
-                CheckboxListTile(
-                  title: Text('Completed'),
-                  value: _completed,
-                  onChanged: (bool? value) {
-                    setState(() {
-                      _completed = value!;
-                    });
-                  },
-                ),
-              SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    _formKey.currentState!.save();
-                    if (widget.formMode == FormMode.Edit) {
-                      widget.task!.name = _content;
-                      widget.task!.completed = _completed;
-                      Navigator.of(context).pop(widget.task);
-                    } else {
-                      final newTask =
-                          Task(name: _content, priority: Priority.normal);
-                      Provider.of<TasksProvider>(context, listen: false)
-                          .createNewTask(newTask);
-                      Navigator.of(context).pop();
-                    }
-                  }
+              DropdownButtonFormField<Priority>(
+                value: _priority,
+                decoration: InputDecoration(labelText: 'Priority'),
+                onChanged: (Priority? newValue) {
+                  setState(() {
+                    _priority = newValue!;
+                  });
                 },
-                child: Text(
-                    widget.formMode == FormMode.Add ? 'Add Task' : 'Edit Task'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).primaryColor,
-                  foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                ),
+                items: Priority.values.map((Priority classType) {
+                  return DropdownMenuItem<Priority>(
+                    value: classType,
+                    child: Text(classType.toString().split('.').last),
+                  );
+                }).toList(),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _submitForm,
+                child: Text('Save'),
               ),
             ],
           ),

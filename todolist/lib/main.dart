@@ -3,22 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'providers/tasks_provider.dart';
 import 'providers/user_provider.dart';
-import 'app.dart'; // Importer la classe ToDoListApp
+import 'services/auth_service.dart';
+import 'todo_list_app.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
   runApp(TodoListApp());
-}
-
-class TodoListApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => TasksProvider()),
-        ChangeNotifierProvider(create: (_) => UserProvider()),
-      ],
-      child: const ToDoListApp(),
-    );
-  }
 }

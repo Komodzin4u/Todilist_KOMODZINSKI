@@ -1,50 +1,46 @@
 import 'package:flutter/material.dart';
-import '../services/task_service.dart';
 import '../models/task.dart';
+import '../services/task_service.dart';
 
-class TasksProvider extends ChangeNotifier {
+class TasksProvider with ChangeNotifier {
+  List<Task> _tasks = [];
   final TaskService _taskService = TaskService();
-  late Future<List<Task>> _tasksFuture;
-  final Map<String, Task> _tasksMap = {};
 
-  TasksProvider() {
-    _tasksFuture = _fetchAndCacheTasks();
+  List<Task> get tasks => _tasks;
+
+  Future<void> fetchTasks() async {
+    _tasks = await _taskService.fetchTasks();
+    notifyListeners();
   }
 
-  Future<List<Task>> get tasksFuture => _tasksFuture;
+  Future<void> addTask(Task task) async {
+    await _taskService.createNewTask(task);
+    _tasks.add(task);
+    notifyListeners();
+  }
 
-  Future<List<Task>> _fetchAndCacheTasks() async {
-    List<Task> tasks = await _taskService.fetchTasks();
-    _tasksMap.clear();
-    for (var task in tasks) {
-      _tasksMap[task.id] = task;
+  Future<void> updateTask(Task task) async {
+    await _taskService.updateTask(task);
+    int index = _tasks.indexWhere((t) => t.id == task.id);
+    if (index != -1) {
+      _tasks[index] = task;
+      notifyListeners();
     }
-    return tasks;
-  }
-
-  void refreshTasks() {
-    _tasksFuture = _fetchAndCacheTasks();
-    notifyListeners();
-  }
-
-  Future<void> createNewTask(Task newTask) async {
-    await _taskService.createNewTask(newTask);
-    refreshTasks();
-  }
-
-  Task? getTaskById(String id) {
-    return _tasksMap[id];
-  }
-
-  Future<void> updateTask(Task updatedTask) async {
-    await _taskService.updateTask(updatedTask);
-    _tasksMap[updatedTask.id] = updatedTask;
-    notifyListeners();
   }
 
   Future<void> deleteTask(String id) async {
     await _taskService.deleteTask(id);
-    _tasksMap.remove(id);
+    _tasks.removeWhere((task) => task.id == id);
     notifyListeners();
+  }
+
+  Task getTaskById(String id) {
+    return _tasks.firstWhere((task) => task.id == id,
+        orElse: () => throw Exception('Task not found'));
+  }
+
+  Future<List<Task>> get tasksFuture async {
+    await fetchTasks();
+    return tasks;
   }
 }

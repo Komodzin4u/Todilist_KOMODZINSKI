@@ -1,18 +1,23 @@
-import 'package:uuid/uuid.dart';
-
 class User {
   final String id;
-  final String name;
   final String email;
 
   User({
-    String? id,
-    required this.name,
+    required this.id,
     required this.email,
-  }) : id = id ?? const Uuid().v4();
+  });
 
-  @override
-  String toString() {
-    return 'User{id: $id, name: $name, email: $email}';
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      id: json['id'],
+      email: json['email'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'email': email,
+    };
   }
 }
