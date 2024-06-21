@@ -4,7 +4,7 @@ import '../models/task.dart';
 
 class TaskService {
   final Dio _dio = Dio(BaseOptions(
-    baseUrl: dotenv.env['SUPABASE_URL']!,
+    baseUrl: '${dotenv.env['SUPABASE_URL']}/rest/v1',
     headers: {
       'apikey': dotenv.env['API_KEY']!,
       'Authorization': 'Bearer ${dotenv.env['SUPABASE_ANON_KEY']!}',
@@ -12,7 +12,7 @@ class TaskService {
   ));
 
   Future<List<Task>> fetchTasks() async {
-    final response = await _dio.get('/rest/v1/tasks');
+    final response = await _dio.get('/tasks');
     if (response.statusCode == 200) {
       final List<dynamic> data = response.data;
       return data.map((json) => Task.fromJson(json)).toList();
@@ -22,14 +22,25 @@ class TaskService {
   }
 
   Future<void> createNewTask(Task task) async {
-    await _dio.post('/rest/v1/tasks', data: task.toJson());
+    final response = await _dio.post('/tasks', data: task.toJson());
+    print('Create task response: ${response.statusCode}');
   }
 
   Future<void> updateTask(Task task) async {
-    await _dio.put('/rest/v1/tasks/${task.id}', data: task.toJson());
+    print('Updating task: ${task.toJson()}');
+    final response =
+        await _dio.patch('/tasks?id=eq.${task.id}', data: task.toJson());
+    print('Update task response: ${response.statusCode}');
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Failed to update task');
+    }
   }
 
   Future<void> deleteTask(String id) async {
-    await _dio.delete('/rest/v1/tasks/$id');
+    final response = await _dio.delete('/tasks?id=eq.$id');
+    print('Delete task response: ${response.statusCode}');
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Failed to delete task');
+    }
   }
 }

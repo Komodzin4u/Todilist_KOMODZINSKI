@@ -22,10 +22,20 @@ class _TaskDetailsState extends State<TaskDetails> {
     _task = widget.task;
   }
 
-  void _updateTask(Task updatedTask) {
-    setState(() {
-      _task = updatedTask;
-    });
+  void _updateTask(Task updatedTask) async {
+    try {
+      await Provider.of<TasksProvider>(context, listen: false)
+          .updateTask(updatedTask);
+      final updated = Provider.of<TasksProvider>(context, listen: false)
+          .getTaskById(updatedTask.id);
+      if (updated != null) {
+        setState(() {
+          _task = updated;
+        });
+      }
+    } catch (e) {
+      print('Error updating task: $e');
+    }
   }
 
   @override
@@ -36,8 +46,8 @@ class _TaskDetailsState extends State<TaskDetails> {
         actions: [
           IconButton(
             icon: Icon(Icons.edit),
-            onPressed: () {
-              showDialog(
+            onPressed: () async {
+              final updatedTask = await showDialog<Task>(
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
@@ -47,15 +57,11 @@ class _TaskDetailsState extends State<TaskDetails> {
                     ),
                   );
                 },
-              ).then((_) {
-                // Met à jour l'état après la fermeture du dialogue
-                final updatedTask =
-                    Provider.of<TasksProvider>(context, listen: false)
-                        .getTaskById(_task.id);
-                if (updatedTask != null) {
-                  _updateTask(updatedTask);
-                }
-              });
+              );
+
+              if (updatedTask != null) {
+                _updateTask(updatedTask);
+              }
             },
           ),
         ],

@@ -75,28 +75,26 @@ class _TaskFormState extends State<TaskForm> {
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
-                    if (widget.formMode == FormMode.Add) {
-                      Provider.of<TasksProvider>(context, listen: false)
-                          .createNewTask(
-                              Task(name: _content, priority: Priority.normal));
-                    } else {
+                    if (widget.formMode == FormMode.Edit) {
                       widget.task!.name = _content;
                       widget.task!.completed = _completed;
+                      Navigator.of(context).pop(widget.task);
+                    } else {
+                      final newTask =
+                          Task(name: _content, priority: Priority.normal);
                       Provider.of<TasksProvider>(context, listen: false)
-                          .updateTask(widget.task!);
+                          .createNewTask(newTask);
+                      Navigator.of(context).pop();
                     }
-                    Navigator.of(context).pop();
-                    Provider.of<TasksProvider>(context, listen: false)
-                        .notifyListeners();
                   }
                 },
+                child: Text(
+                    widget.formMode == FormMode.Add ? 'Add Task' : 'Edit Task'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).primaryColor,
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 ),
-                child: Text(
-                    widget.formMode == FormMode.Add ? 'Add Task' : 'Edit Task'),
               ),
             ],
           ),
