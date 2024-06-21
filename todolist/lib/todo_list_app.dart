@@ -40,9 +40,12 @@ class TodoListApp extends StatelessWidget {
                   } else if (snapshot.hasError) {
                     return Center(child: Text('Error: ${snapshot.error}'));
                   } else if (snapshot.hasData && snapshot.data != null) {
-                    final user = User.fromJson(snapshot.data!);
-                    Provider.of<UserProvider>(context, listen: false)
-                        .setUser(user);
+                    WidgetsBinding.instance?.addPostFrameCallback((_) {
+                      final user = User.fromJson(snapshot.data!);
+                      final userProvider =
+                          Provider.of<UserProvider>(context, listen: false);
+                      userProvider.setUser(user);
+                    });
                     return TasksMaster();
                   } else {
                     return SignIn();

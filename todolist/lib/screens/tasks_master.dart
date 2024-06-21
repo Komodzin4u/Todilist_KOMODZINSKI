@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/tasks_provider.dart';
-import '../providers/user_provider.dart';
 import '../widgets/task_preview.dart';
 
-class TasksMaster extends StatelessWidget {
+class TasksMaster extends StatefulWidget {
+  @override
+  _TasksMasterState createState() => _TasksMasterState();
+}
+
+class _TasksMasterState extends State<TasksMaster> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      Provider.of<TasksProvider>(context, listen: false).fetchTasks();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final tasksProvider = Provider.of<TasksProvider>(context, listen: false);
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-
-    if (userProvider.user != null) {
-      tasksProvider.fetchTasks();
-    }
-
     return Scaffold(
       appBar: AppBar(title: Text('Tasks')),
       body: Consumer<TasksProvider>(
