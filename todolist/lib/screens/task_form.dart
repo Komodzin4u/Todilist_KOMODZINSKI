@@ -86,6 +86,8 @@ class _TaskFormState extends State<TaskForm> {
                           .updateTask(widget.task!);
                     }
                     Navigator.of(context).pop();
+                    Provider.of<TasksProvider>(context, listen: false)
+                        .notifyListeners();
                   }
                 },
                 child: Text(
