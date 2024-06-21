@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/task.dart';
 import '../providers/tasks_provider.dart';
-import '../services/auth_service.dart';
-import 'package:uuid/uuid.dart';
+import '../providers/user_provider.dart';
 
 class TaskForm extends StatefulWidget {
   final Task? task;
@@ -16,8 +15,8 @@ class TaskForm extends StatefulWidget {
 
 class _TaskFormState extends State<TaskForm> {
   final _formKey = GlobalKey<FormState>();
-  String _name = '';
-  Priority _priority = Priority.normal;
+  late String _name;
+  late Priority _priority;
 
   @override
   void initState() {
@@ -25,39 +24,18 @@ class _TaskFormState extends State<TaskForm> {
     if (widget.task != null) {
       _name = widget.task!.name;
       _priority = widget.task!.priority;
-    }
-  }
-
-  void _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      var uuid = Uuid();
-      final userId = (await AuthService().getUserData())?['id'];
-      Task newTask = widget.task != null
-          ? widget.task!
-              .copyWith(name: _name, priority: _priority, userId: userId)
-          : Task(
-              id: uuid.v4(),
-              name: _name,
-              completed: false,
-              priority: _priority,
-              userId: userId);
-      if (widget.task != null) {
-        await Provider.of<TasksProvider>(context, listen: false)
-            .updateTask(newTask);
-      } else {
-        await Provider.of<TasksProvider>(context, listen: false)
-            .addTask(newTask);
-      }
-      Navigator.pop(context);
+    } else {
+      _name = '';
+      _priority = Priority.normal;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:
-          AppBar(title: Text(widget.task != null ? 'Edit Task' : 'New Task')),
+      appBar: AppBar(
+        title: Text(widget.task == null ? 'New Task' : 'Edit Task'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -66,37 +44,62 @@ class _TaskFormState extends State<TaskForm> {
             children: [
               TextFormField(
                 initialValue: _name,
-                decoration: InputDecoration(labelText: 'Name'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter some name';
-                  }
-                  return null;
-                },
+                decoration: InputDecoration(labelText: 'Task Name'),
                 onSaved: (value) {
                   _name = value!;
                 },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a name';
+                  }
+                  return null;
+                },
               ),
-              SizedBox(height: 10),
               DropdownButtonFormField<Priority>(
                 value: _priority,
                 decoration: InputDecoration(labelText: 'Priority'),
+                items: Priority.values.map((Priority priority) {
+                  return DropdownMenuItem<Priority>(
+                    value: priority,
+                    child: Text(priority.toString().split('.').last),
+                  );
+                }).toList(),
                 onChanged: (Priority? newValue) {
                   setState(() {
                     _priority = newValue!;
                   });
                 },
-                items: Priority.values.map((Priority classType) {
-                  return DropdownMenuItem<Priority>(
-                    value: classType,
-                    child: Text(classType.toString().split('.').last),
-                  );
-                }).toList(),
+                onSaved: (value) {
+                  _priority = value!;
+                },
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _submitForm,
-                child: Text('Save'),
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState!.save();
+                    String userId =
+                        Provider.of<UserProvider>(context, listen: false)
+                            .user!
+                            .id;
+                    Task task = Task(
+                      id: widget.task?.id ?? '',
+                      name: _name,
+                      priority: _priority,
+                      completed: widget.task?.completed ?? false,
+                      userId: userId,
+                    );
+                    if (widget.task == null) {
+                      Provider.of<TasksProvider>(context, listen: false)
+                          .addTask(task);
+                    } else {
+                      Provider.of<TasksProvider>(context, listen: false)
+                          .updateTask(task);
+                    }
+                    Navigator.pop(context);
+                  }
+                },
+                child: Text(widget.task == null ? 'Add Task' : 'Update Task'),
               ),
             ],
           ),

@@ -15,7 +15,7 @@ class TaskService {
       String? userId = (await authService.getUserData())?['id'];
       final response = await _dio.get(
         '$_baseUrl/rest/v1/tasks',
-        queryParameters: {'user_id': 'eq.$userId'}, // Assurer le bon filtrage
+        queryParameters: {'user_id': 'eq.$userId'},
         options: Options(headers: {
           'apikey': _apiKey,
           'Authorization': 'Bearer $token',
@@ -35,9 +35,7 @@ class TaskService {
   Future<void> createNewTask(Task task) async {
     try {
       String? token = await authService.getAccessToken();
-      String? userId = (await authService.getUserData())?['id'];
       final taskData = task.toJson();
-      taskData['user_id'] = userId;
       await _dio.post(
         '$_baseUrl/rest/v1/tasks',
         data: taskData,
@@ -54,8 +52,8 @@ class TaskService {
   Future<void> updateTask(Task task) async {
     try {
       String? token = await authService.getAccessToken();
-      await _dio.put(
-        '$_baseUrl/rest/v1/tasks/${task.id}',
+      await _dio.patch(
+        '$_baseUrl/rest/v1/tasks?id=eq.${task.id}',
         data: task.toJson(),
         options: Options(headers: {
           'apikey': _apiKey,
@@ -71,7 +69,7 @@ class TaskService {
     try {
       String? token = await authService.getAccessToken();
       await _dio.delete(
-        '$_baseUrl/rest/v1/tasks/$id',
+        '$_baseUrl/rest/v1/tasks?id=eq.$id',
         options: Options(headers: {
           'apikey': _apiKey,
           'Authorization': 'Bearer $token',
